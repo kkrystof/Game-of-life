@@ -2,3 +2,4 @@
 Kazdy zivot konci smrti.
 Commit test :) :) .
 .
+.
