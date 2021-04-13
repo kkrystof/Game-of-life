@@ -2,14 +2,14 @@
 function render() {
 
 	let pxSize = gridSett.pxSize;
+	ctx.fillStyle = 'black';
 
-	for(let x=0; x < grid[0].length; x++){
-		for(let y=0; y < grid.length; y++){
+	for(let x=0; x < grid.length; x++){
+		for(let y=0; y < grid[0].length; y++){
 			if(grid[y][x] === 1){
-				ctx.fillStyle = 'black';
 				ctx.fillRect(
-					x*(pxSize+gridSett.gap) + pxSize, 
-					y*(pxSize+gridSett.gap) + pxSize, 
+					x*(pxSize+gridSett.gap), 
+					y*(pxSize+gridSett.gap), 
 					pxSize, pxSize);
 			}
 		}
@@ -31,12 +31,21 @@ let canvas = document.getElementById('cnvs');
 let ctx = canvas.getContext('2d');
 
 let gridSett = {
-	pxSize: 10,
+	pxSize: 30,
 	gap: 2,
 }
 
-gridSett.rows = Math.floor(canvas.height/(gridSett.pxSize+gridSett.gap));
-gridSett.colls = Math.floor(canvas.width/(gridSett.pxSize+gridSett.gap));
+
+let rows = canvas.height/(gridSett.pxSize+gridSett.gap);
+gridSett.rows = Math.floor(rows);
+
+let colls = canvas.width/(gridSett.pxSize+gridSett.gap);
+gridSett.colls = Math.floor(colls);
+
+
+document.getElementById('cnvs').height = canvas.height 	- ((rows-gridSett.rows)*(gridSett.pxSize+gridSett.gap));
+document.getElementById('cnvs').width= canvas.width	- ((colls-gridSett.colls)*(gridSett.pxSize+gridSett.gap));
+
 
 console.log(gridSett.rows);
 console.log(gridSett.colls);
@@ -49,7 +58,11 @@ let grid = create2DArray(gridSett.colls, gridSett.rows);
 //add some data to grid array
 grid[0][0] = 1;
 grid[1][0] = 1;
-grid[30][48] = 1;
 
+grid[1][1] = 1;
+
+grid[1][17] = 1;
+
+grid[17][17] = 1;
 render();
 
