@@ -43,8 +43,8 @@ let colls = canvas.width/(gridSett.pxSize+gridSett.gap);
 gridSett.colls = Math.floor(colls);
 
 
-document.getElementById('cnvs').height = canvas.height 	- ((rows-gridSett.rows)*(gridSett.pxSize+gridSett.gap));
-document.getElementById('cnvs').width= canvas.width	- ((colls-gridSett.colls)*(gridSett.pxSize+gridSett.gap));
+document.getElementById('cnvs').height = canvas.height 	- ((rows-gridSett.rows)*(gridSett.pxSize+gridSett.gap)) - gridSett.gap;
+document.getElementById('cnvs').width= canvas.width	- ((colls-gridSett.colls)*(gridSett.pxSize+gridSett.gap)) - gridSett.gap;
 
 
 console.log(gridSett.rows);
