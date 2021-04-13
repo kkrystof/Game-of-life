@@ -1,4 +1,2 @@
-# Game-of-life
-Kazdy zivot konci smrti.
-Commit test :) :) .
+# Conway's Game of Life
 
