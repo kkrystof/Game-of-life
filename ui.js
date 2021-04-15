@@ -1,68 +1,57 @@
 
-function render() {
+function renderLiveCells() {
+
+	let shift =
+		(gridSett.gap + ((gridSett.d/(gridSett.gap+gridSett.pxSize))%1)*(gridSett.gap+gridSett.pxSize))/gridSett.n;
+
+	// the first (0) rect doesn't add the shiftH/W .. 0*( .. and therefore  
+	shift += shift/gridSett.n;
 
 	let pxSize = gridSett.pxSize;
+
 	ctx.fillStyle = 'black';
 
-	for(let x=0; x < grid.length; x++){
-		for(let y=0; y < grid[0].length; y++){
-			if(grid[y][x] === 1){
-				ctx.fillRect(
-					x*(pxSize+gridSett.gap), 
-					y*(pxSize+gridSett.gap), 
-					pxSize, pxSize);
-			}
-		}
-	}
+	for(let i = 0; i < gridSett.liveCells.length; i++)
+		ctx.fillRect(
+			gridSett.liveCells[i][0]*(pxSize+gridSett.gap+shift),
+			gridSett.liveCells[i][1]*(pxSize+gridSett.gap+shift),
+			pxSize, pxSize);
 }
 
 
-function create2DArray(colls, rows) {
-	let arr = new Array(colls)
 
-	for (let i = 0; i < colls; i++)
-		arr[i] = new Array(rows)
-	return arr;
-}
-
+document.getElementById('cnvs').width= Math.min(screen.availWidth,screen.availHeight);
+document.getElementById('cnvs').height = document.getElementById('cnvs').width; 
 
 
 let canvas = document.getElementById('cnvs');
 let ctx = canvas.getContext('2d');
-
 let gridSett = {
-	pxSize: 30,
-	gap: 2,
+	n: 6,
+	d: document.getElementById('cnvs').width,
+	liveCells: [],
+	pxSize: 0,
+	gap: 0,
+	r: 8 // ratio pxSize = r*gap
 }
 
 
-let rows = canvas.height/(gridSett.pxSize+gridSett.gap);
-gridSett.rows = Math.floor(rows);
-
-let colls = canvas.width/(gridSett.pxSize+gridSett.gap);
-gridSett.colls = Math.floor(colls);
-
-
-document.getElementById('cnvs').height = canvas.height 	- ((rows-gridSett.rows)*(gridSett.pxSize+gridSett.gap)) - gridSett.gap;
-document.getElementById('cnvs').width= canvas.width	- ((colls-gridSett.colls)*(gridSett.pxSize+gridSett.gap)) - gridSett.gap;
-
-
-console.log(gridSett.rows);
-console.log(gridSett.colls);
-
-let grid = create2DArray(gridSett.colls, gridSett.rows);
+gridSett.pxSize = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
+gridSett.gap = gridSett.pxSize/gridSett.r;
 
 
 
 
-//add some data to grid array
-grid[0][0] = 1;
-grid[1][0] = 1;
 
-grid[1][1] = 1;
+//add some cells to grid 
+gridSett.liveCells.push(new Array(0,0));
+gridSett.liveCells.push(new Array(0,1));
+gridSett.liveCells.push(new Array(1,1));
+gridSett.liveCells.push(new Array(27,10));
+gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
+gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
+gridSett.liveCells.push(new Array(gridSett.n-1,1));
 
-grid[1][17] = 1;
 
-grid[17][17] = 1;
-render();
+renderLiveCells();
 
