@@ -4,11 +4,10 @@ function renderLiveCells() {
 	let shift =
 		(gridSett.gap + ((gridSett.d/(gridSett.gap+gridSett.pxSize))%1)*(gridSett.gap+gridSett.pxSize))/gridSett.n;
 
-	// the first (0) rect doesn't add the shiftH/W .. 0*( .. and therefore  
-	shift += shift/gridSett.n;
+	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
+	shift += shift/(gridSett.n-1);
 
 	let pxSize = gridSett.pxSize;
-
 	ctx.fillStyle = 'black';
 
 	for(let i = 0; i < gridSett.liveCells.length; i++)
@@ -27,7 +26,7 @@ document.getElementById('cnvs').height = document.getElementById('cnvs').width;
 let canvas = document.getElementById('cnvs');
 let ctx = canvas.getContext('2d');
 let gridSett = {
-	n: 6,
+	n: 10,
 	d: document.getElementById('cnvs').width,
 	liveCells: [],
 	pxSize: 0,
