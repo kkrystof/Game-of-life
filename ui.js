@@ -44,7 +44,7 @@ function renderLiveCells() {
 		ctx.fillRect(
 			gridSett.liveCells[i][0]*(gridSett.size+gridSett.gap),
 			gridSett.liveCells[i][1]*(gridSett.size+gridSett.gap),
-			size, size);
+			gridSett.size, gridSett.size);
 }
 
 
