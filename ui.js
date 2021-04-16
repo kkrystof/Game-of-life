@@ -7,10 +7,26 @@ let   canvas = 	document.getElementById('cnvs'),
         liveCells: [],
         size: 0,
         gap: 0,
-        r: 15 // ratio size = r*gap
+        r: 15 // ratio = r*gap
 	};
 
-window.onresize = function() {resizeGrid()};
+
+window.onresize = function() {
+	
+	// avoiding resizeGrid() if it's not necessary
+
+	const windowW = window.innerWidth; 
+	const windowH = window.innerHeight; 
+
+	if(windowW<windowH) {
+		if(windowW==canvas.width && windowH>canvas.width)
+			return;
+	}
+	else if(windowH==canvas.height && windowW>canvas.height) 
+			return;
+
+	resizeGrid();
+};
 
 
 function renderLiveCells() {
@@ -31,7 +47,9 @@ function renderLiveCells() {
 			size, size);
 }
 
+
 function resizeGrid() {
+
 	canvas.height = Math.min(window.innerHeight,window.innerWidth);
 	canvas.width = canvas.height;
 
@@ -42,6 +60,7 @@ function resizeGrid() {
 }
 
 function testAddSomeCells() {
+
 	gridSett.liveCells.push(new Array(0,0));
 	gridSett.liveCells.push(new Array(0,1));
 	gridSett.liveCells.push(new Array(1,1));
