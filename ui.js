@@ -12,7 +12,7 @@ let   canvas = 	document.getElementById('cnvs'),
 
 
 window.onresize = function() {
-	
+
 	// avoiding resizeGrid() if it's not necessary
 
 	const windowW = window.innerWidth; 
@@ -22,8 +22,8 @@ window.onresize = function() {
 		if(windowW==canvas.width && windowH>canvas.width)
 			return;
 	}
-	else if(windowH==canvas.height && windowW>canvas.height) 
-			return;
+	if(windowH==canvas.height && windowW>canvas.height) 
+		return;
 
 	resizeGrid();
 };
