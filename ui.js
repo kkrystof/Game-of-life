@@ -1,5 +1,5 @@
 
-let   canvas = 	document.getElementById('cnvs'),
+let   canvas = 	document.getElementById('gridGameOfLife'),
       ctx    = 	canvas.getContext('2d'),
       gridSett = {
         n: 30,
@@ -15,8 +15,8 @@ window.onresize = function() {
 
 	// avoiding resizeGrid() if it's not necessary
 
-	const windowW = window.innerWidth; 
-	const windowH = window.innerHeight; 
+	const  	windowW = window.innerWidth,
+		windowH = window.innerHeight; 
 
 	if(windowW<windowH) {
 		if(windowW==canvas.width && windowH>canvas.width)
@@ -36,14 +36,15 @@ function renderLiveCells() {
 
 	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
 	shift += shift/(gridSett.n-1);
+	gridSett.gap += shift;
 
 	let size = gridSett.size;
 	ctx.fillStyle = 'black';
 
 	for(let i = 0; i < gridSett.liveCells.length; i++)
 		ctx.fillRect(
-			gridSett.liveCells[i][0]*(size+gridSett.gap+shift),
-			gridSett.liveCells[i][1]*(size+gridSett.gap+shift),
+			gridSett.liveCells[i][0]*(size+gridSett.gap),
+			gridSett.liveCells[i][1]*(size+gridSett.gap),
 			size, size);
 }
 
@@ -56,10 +57,11 @@ function resizeGrid() {
 	gridSett.d = canvas.height;
 	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
 	gridSett.gap = gridSett.size/gridSett.r;
+
 	renderLiveCells();	
 }
 
-function testAddSomeCells() {
+function addSomeCells() {
 
 	gridSett.liveCells.push(new Array(0,0));
 	gridSett.liveCells.push(new Array(0,1));
@@ -71,7 +73,7 @@ function testAddSomeCells() {
 }
 
 
-testAddSomeCells();
+addSomeCells();
 resizeGrid();
 
 
