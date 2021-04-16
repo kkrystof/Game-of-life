@@ -31,6 +31,8 @@ window.onresize = function() {
 
 function renderLiveCells() {
 
+	ctx.fillStyle = 'black';
+
 	let shift =
 		(gridSett.gap + ((gridSett.d/(gridSett.gap+gridSett.size))%1)*(gridSett.gap+gridSett.size))/gridSett.n;
 
@@ -38,13 +40,10 @@ function renderLiveCells() {
 	shift += shift/(gridSett.n-1);
 	gridSett.gap += shift;
 
-	let size = gridSett.size;
-	ctx.fillStyle = 'black';
-
 	for(let i = 0; i < gridSett.liveCells.length; i++)
 		ctx.fillRect(
-			gridSett.liveCells[i][0]*(size+gridSett.gap),
-			gridSett.liveCells[i][1]*(size+gridSett.gap),
+			gridSett.liveCells[i][0]*(gridSett.size+gridSett.gap),
+			gridSett.liveCells[i][1]*(gridSett.size+gridSett.gap),
 			size, size);
 }
 
