@@ -18,14 +18,12 @@ window.onresize = function() {
 	const  	windowW = window.innerWidth,
 		windowH = window.innerHeight; 
 
-	if(windowW<windowH) {
-		if(windowW==canvas.width && windowH>canvas.width)
+	if(windowW<windowH && windowW==canvas.width && windowH>canvas.width
+	|| windowW>windowH && windowH==canvas.height && windowW>canvas.height)
 			return;
-	}
-	if(windowH==canvas.height && windowW>canvas.height) 
-		return;
 
 	resizeGrid();
+	console.log(gridSett.d);
 };
 
 
@@ -48,16 +46,18 @@ function renderLiveCells() {
 
 
 function resizeGrid() {
+	
+	gridSett.d = Math.min(window.innerHeight,window.innerWidth);
 
-	canvas.height = Math.min(window.innerHeight,window.innerWidth);
-	canvas.width = canvas.height;
+	canvas.height = gridSett.d;
+	canvas.width  = gridSett.d;
 
-	gridSett.d = canvas.height;
 	calcCellGap();
 	renderLiveCells();	
 }
 
 function calcCellGap() {
+
 	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
         gridSett.gap = gridSett.size/gridSett.r;
 }
@@ -68,7 +68,6 @@ function addSomeCells() {
 	gridSett.liveCells.push(new Array(0,1));
 	gridSett.liveCells.push(new Array(1,1));
 	gridSett.liveCells.push(new Array(27,10));
-	gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
 	gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
 	gridSett.liveCells.push(new Array(gridSett.n-1,1));
 }
