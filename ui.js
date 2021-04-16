@@ -3,7 +3,7 @@ let   canvas = 	document.getElementById('gridGameOfLife'),
       ctx    = 	canvas.getContext('2d'),
       gridSett = {
         n: 30,
-        d: canvas.width,
+        d: 0,
         liveCells: [],
         size: 0,
         gap: 0,
@@ -38,12 +38,11 @@ function renderLiveCells() {
 
 	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
 	shift += shift/(gridSett.n-1);
-	gridSett.gap += shift;
 
 	for(let i = 0; i < gridSett.liveCells.length; i++)
 		ctx.fillRect(
-			gridSett.liveCells[i][0]*(gridSett.size+gridSett.gap),
-			gridSett.liveCells[i][1]*(gridSett.size+gridSett.gap),
+			gridSett.liveCells[i][0]*(gridSett.size+gridSett.gap+shift),
+			gridSett.liveCells[i][1]*(gridSett.size+gridSett.gap+shift),
 			gridSett.size, gridSett.size);
 }
 
@@ -54,10 +53,13 @@ function resizeGrid() {
 	canvas.width = canvas.height;
 
 	gridSett.d = canvas.height;
-	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
-	gridSett.gap = gridSett.size/gridSett.r;
-
+	calcCellGap();
 	renderLiveCells();	
+}
+
+function calcCellGap() {
+	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
+        gridSett.gap = gridSett.size/gridSett.r;
 }
 
 function addSomeCells() {
