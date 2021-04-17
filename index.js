@@ -32,7 +32,7 @@ function renderLiveCells() {
 	ctx.fillStyle = 'black';
 
 	let shift =
-		(gridSett.gap + ((gridSett.d/(gridSett.gap+gridSett.size))%1)*(gridSett.gap+gridSett.size))/gridSett.n;
+		(gridSett.gap + (gridSett.d/(gridSett.gap+gridSett.size))%1*(gridSett.gap+gridSett.size))/gridSett.n;
 
 	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
 	shift += shift/(gridSett.n-1);
@@ -67,7 +67,6 @@ function addSomeCells() {
 	gridSett.liveCells.push(new Array(0,0));
 	gridSett.liveCells.push(new Array(0,1));
 	gridSett.liveCells.push(new Array(1,1));
-	gridSett.liveCells.push(new Array(27,10));
 	gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
 	gridSett.liveCells.push(new Array(gridSett.n-1,1));
 }
