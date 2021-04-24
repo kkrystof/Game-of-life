@@ -2,11 +2,12 @@
 let   canvas = 	document.getElementById('gridGameOfLife'),
       ctx    = 	canvas.getContext('2d'),
       gridSett = {
-        n: 30,
-        d: 0,
+        n: 30, // number of cells for each dimension
+        d: 0, // number of pxs for each dimension
         liveCells: [],
         size: 0,
         gap: 0,
+	shift: 0,
         r: 15 // ratio = r*gap
 	};
 
@@ -23,24 +24,21 @@ window.onresize = function() {
 			return;
 
 	resizeGrid();
-	console.log(gridSett.d);
 };
 
 
 function renderLiveCells() {
 
+	// clear the canvas 
+	ctx.fillStyle = 'white';
+	ctx.fillRect(0, 0, gridSett.d, gridSett.d);
+
 	ctx.fillStyle = 'black';
 
-	let shift =
-		(gridSett.gap + (gridSett.d/(gridSett.gap+gridSett.size))%1*(gridSett.gap+gridSett.size))/gridSett.n;
-
-	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
-	shift += shift/(gridSett.n-1);
-
-	for(let i = 0; i < gridSett.liveCells.length; i++)
+	for(let cell of gridSett.liveCells)
 		ctx.fillRect(
-			gridSett.liveCells[i][0]*(gridSett.size+gridSett.gap+shift),
-			gridSett.liveCells[i][1]*(gridSett.size+gridSett.gap+shift),
+			cell[0]*(gridSett.size+gridSett.gap+gridSett.shift),
+			cell[1]*(gridSett.size+gridSett.gap+gridSett.shift),
 			gridSett.size, gridSett.size);
 }
 
@@ -52,14 +50,20 @@ function resizeGrid() {
 	canvas.height = gridSett.d;
 	canvas.width  = gridSett.d;
 
-	calcCellGap();
+	calcForResize();
 	renderLiveCells();	
 }
 
-function calcCellGap() {
+function calcForResize() {
 
 	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
         gridSett.gap = gridSett.size/gridSett.r;
+
+	gridSett.shift =
+		(gridSett.gap + (gridSett.d/(gridSett.gap+gridSett.size))%1*(gridSett.gap+gridSett.size))/gridSett.n;
+
+	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
+	gridSett.shift += gridSett.shift/(gridSett.n-1);
 }
 
 function addSomeCells() {
@@ -88,9 +92,10 @@ function addSomeCells() {
 	gridSett.liveCells.push(new Array(10,12));
 }
 
-//core
 function newGeneration() {
 
+	//core
+	
 	clearInterval(generation);
 
 	let nextLiveCells = [],
@@ -99,14 +104,13 @@ function newGeneration() {
 
 	gridSett.liveCells.forEach(function generate(cell, i) {
 
-		if(!shouldLive(cell,-1))
+		if(!shouldLive(cell,true))
 			nextDeadCells.push(i);
 
 		for(let x = cell[0]-1; x <= cell[0]+1; x++) {
-			for(let y = cell[1]-1; y <= cell[1]+1; y++) {
-				if(!exists([x,y],nextLiveCells) && shouldLive([x,y],0))
+			for(let y = cell[1]-1; y <= cell[1]+1; y++)
+				if(!exists([x,y],nextLiveCells) && shouldLive([x,y],false))
 					nextLiveCells.push(new Array(x,y));
-			}
 		}
 	});
 
@@ -121,17 +125,18 @@ function newGeneration() {
 
 
 function exists(cell,nextLiveCells) {
-	for(let i of gridSett.liveCells.concat(nextLiveCells)) {
+
+	for(let i of gridSett.liveCells.concat(nextLiveCells))
 		if(i[0]==cell[0] && i[1]==cell[1])
 			return true;
-	}
 	return false;
 }
 
-function shouldLive(cell,param) {
+function shouldLive(cell,isCellDefinitelyLive) {
 
-	let nLiveCellsAround = param;
-	for(let comparedCell of gridSett.liveCells) {
+	let nLiveCellsAround = 0;
+
+	for(let comparedCell of gridSett.liveCells)
 
 		if
 		(
@@ -141,10 +146,8 @@ function shouldLive(cell,param) {
 			comparedCell[1] >= cell[1]-1
 		)
 			nLiveCellsAround++;
-	}
 
-
-	return (param==0) ? comesToLive(nLiveCellsAround) : !willDie(nLiveCellsAround);
+	return (isCellDefinitelyLive) ? !willDie(nLiveCellsAround-1) : comesToLive(nLiveCellsAround);
 }
 
 function comesToLive(nLiveCellsAround) {
@@ -171,13 +174,17 @@ function willDie(nLiveCellsAround) {
 
 
 
+//	executing something	
+//
+//
+//
 
 addSomeCells();
 resizeGrid();
 
 function testGeneration() {
 	newGeneration();
-	resizeGrid();
+	renderLiveCells();
 }
 
 
