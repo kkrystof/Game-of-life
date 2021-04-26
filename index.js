@@ -98,21 +98,23 @@ function newGeneration() {
 	
 	clearInterval(generation);
 
-	let nextLiveCells = [];
+	nLiveCells = gridSett.liveCells.length;
 
-	for(let cell of gridSett.liveCells) 
+
+	for(let cell of gridSett.liveCells.slice(0,nLiveCells)) 
 		for(let x = cell[0]-1; x <= cell[0]+1; x++)
 			for(let y = cell[1]-1; y <= cell[1]+1; y++)
-				if(!exists([x,y],nextLiveCells) && shouldLive([x,y],false))
-					nextLiveCells.push(new Array(x,y));
+				if(!exists([x,y]) && shouldLive([x,y],false))
+					gridSett.liveCells.push(new Array(x,y));
 
-	//apply changes
-	
-	// next death cells
-	gridSett.liveCells = gridSett.liveCells.filter(cell => shouldLive(cell,true));
+	// this might look confused to not use arrs nextLiveCells[] and nextDeadCells[].
+	// It was changed (at least temporary) because of memory.
 
-	for(let i of nextLiveCells)
-		gridSett.liveCells.push(i);
+	// remove next dead cells
+	gridSett.liveCells = 
+		gridSett.liveCells.slice(0,nLiveCells).filter(cell => shouldLive(cell,true))
+		.concat(gridSett.liveCells.slice(nLiveCells,gridSett.liveCells.length));
+
 
 	generation = setInterval(testGeneration, 1000);
 }
@@ -120,7 +122,7 @@ function newGeneration() {
 
 function exists(cell,nextLiveCells) {
 
-	for(let i of gridSett.liveCells.concat(nextLiveCells))
+	for(let i of gridSett.liveCells)
 		if(i[0]==cell[0] && i[1]==cell[1])
 			return true;
 	return false;
@@ -130,7 +132,7 @@ function shouldLive(cell,isCellDefinitelyLive) {
 
 	let nLiveCellsAround = 0;
 
-	for(let comparedCell of gridSett.liveCells)
+	for(let comparedCell of gridSett.liveCells.slice(0,nLiveCells))
 
 		if
 		(
@@ -180,6 +182,6 @@ function testGeneration() {
 	newGeneration();
 	renderLiveCells();
 }
-
+let nLiveCells = 0;
 
 var generation = setInterval(testGeneration, 1000);
