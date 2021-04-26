@@ -98,24 +98,19 @@ function newGeneration() {
 	
 	clearInterval(generation);
 
-	let nextLiveCells = [],
-		nextDeadCells = [];
+	let nextLiveCells = [];
 
-
-	gridSett.liveCells.forEach(function generate(cell, i) {
-
-		if(!shouldLive(cell,true))
-			nextDeadCells.push(i);
-
+	for(let cell of gridSett.liveCells) 
 		for(let x = cell[0]-1; x <= cell[0]+1; x++)
 			for(let y = cell[1]-1; y <= cell[1]+1; y++)
 				if(!exists([x,y],nextLiveCells) && shouldLive([x,y],false))
 					nextLiveCells.push(new Array(x,y));
-	});
 
 	//apply changes
-	for(let i of nextDeadCells.reverse())
-		gridSett.liveCells.splice(i,1);
+	
+	// next death cells
+	gridSett.liveCells = gridSett.liveCells.filter(cell => shouldLive(cell,true));
+
 	for(let i of nextLiveCells)
 		gridSett.liveCells.push(i);
 
