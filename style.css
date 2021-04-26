@@ -1,0 +1,50 @@
+/* */
+/* */
+/* */
+canvas{
+        border-right: solid 1px black;
+        border-bottom: solid 1px black;
+}   
+body {
+        overflow: hidden;
+        margin: 0;
+        font-family: sans-serif;
+        font-size: 18px;
+}
+
+#menu{
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 1rem;
+        width: 100vw;
+        padding: 0.5rem;
+        background: rgba(109, 134, 202, 0.03);
+        position: absolute;
+        top: 0;
+}
+
+#menu div{
+        display: inline-flex;
+        align-items: center;
+        
+}
+
+#menu button, input{
+        border: solid 3px black;
+        font-size: 18px;
+        background-color: transparent;
+        border-radius: 12px;
+        height: 40px;
+}
+
+#menu button{
+        padding: 0 2rem;
+        font-weight: bolder;
+}
+#menu button:hover {
+        background-color: #fff;
+}
+#menu button:active {
+        transform: scale(0.96);
+}
