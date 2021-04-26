@@ -98,10 +98,10 @@ function newGeneration() {
 	
 	clearInterval(generation);
 
-	nLiveCells = gridSett.liveCells.length;
+	nLiveCellsBefore = gridSett.liveCells.length;
 
 
-	for(let cell of gridSett.liveCells.slice(0,nLiveCells)) 
+	for(let cell of gridSett.liveCells.slice(0,nLiveCellsBefore)) 
 		for(let x = cell[0]-1; x <= cell[0]+1; x++)
 			for(let y = cell[1]-1; y <= cell[1]+1; y++)
 				if(!exists([x,y]) && shouldLive([x,y],false))
@@ -112,8 +112,8 @@ function newGeneration() {
 
 	// remove next dead cells
 	gridSett.liveCells = 
-		gridSett.liveCells.slice(0,nLiveCells).filter(cell => shouldLive(cell,true))
-		.concat(gridSett.liveCells.slice(nLiveCells,gridSett.liveCells.length));
+		gridSett.liveCells.slice(0,nLiveCellsBefore).filter(cell => shouldLive(cell,true))
+		.concat(gridSett.liveCells.slice(nLiveCellsBefore,gridSett.liveCells.length));
 
 
 	generation = setInterval(testGeneration, 1000);
@@ -132,7 +132,7 @@ function shouldLive(cell,isCellDefinitelyLive) {
 
 	let nLiveCellsAround = 0;
 
-	for(let comparedCell of gridSett.liveCells.slice(0,nLiveCells))
+	for(let comparedCell of gridSett.liveCells.slice(0,nLiveCellsBefore))
 
 		if
 		(
