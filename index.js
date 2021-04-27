@@ -1,172 +1,173 @@
+let UI = {
+	init : function() {
+		this.setupCanvas();
+	},
+	setupCanvas: function() {
+		UI.canvas = document.getElementById('gridGameOfLife');
+		this.ctx = this.canvas.getContext('2d');
+	},
+	grid : {
+		n: 30, // number of cells for each dimension
+		d: 0, // number of pxs for each dimension
+		liveCells: [],
+		size: 0,
+		gap: 0,
+		shift: 0,
+		r: 15 // ratio = r*gap
+	},
+	renderLiveCells : function() {
 
-let   canvas = 	document.getElementById('gridGameOfLife'),
-      ctx    = 	canvas.getContext('2d'),
-      gridSett = {
-        n: 30, // number of cells for each dimension
-        d: 0, // number of pxs for each dimension
-        liveCells: [],
-        size: 0,
-        gap: 0,
-	shift: 0,
-        r: 15 // ratio = r*gap
-	};
+		// clear the canvas 
+		this.ctx.fillStyle = 'white';
+		this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
 
+		this.ctx.fillStyle = 'black';
 
+		for(let cell of this.grid.liveCells)
+			this.ctx.fillRect(
+				cell[0]*(this.grid.size+this.grid.gap+this.grid.shift),
+				cell[1]*(this.grid.size+this.grid.gap+this.grid.shift),
+				this.grid.size, this.grid.size);
+	},
+	resizeGrid : function() {
+
+		this.grid.d = Math.min(window.innerHeight,window.innerWidth);
+
+		this.canvas.height = this.grid.d;
+		this.canvas.width  = this.grid.d;
+
+		this.calcForResize();
+		this.renderLiveCells();	
+
+	},
+	calcForResize : function() {
+
+		this.grid.size = this.grid.r * this.grid.d/(this.grid.n*(this.grid.r+1));
+		this.grid.gap = this.grid.size/this.grid.r;
+
+		this.grid.shift =
+			(this.grid.gap + (this.grid.d/(this.grid.gap+this.grid.size))%1*(this.grid.gap+this.grid.size))/this.grid.n;
+
+		// the first (0) rect doesn't add the shift .. 0*( .. and therefore
+		this.grid.shift += this.grid.shift/(this.grid.n-1);
+	}
+}
+
+window.onload = UI.init();
 window.onresize = function() {
 
 	// avoiding resizeGrid() if it's not necessary
 
-	const  	windowW = window.innerWidth,
-		windowH = window.innerHeight; 
+	const   windowW = window.innerWidth,
+		windowH = window.innerHeight;
 
-	if(windowW<windowH && windowW==canvas.width && windowH>canvas.width
-	|| windowW>windowH && windowH==canvas.height && windowW>canvas.height)
-			return;
+	if(windowW<windowH && windowW==UI.canvas.width && windowH>UI.canvas.width
+		|| windowW>windowH && windowH==UI.canvas.height && windowW>UI.canvas.height)
+		return;
 
-	resizeGrid();
+	UI.resizeGrid();
 };
 
+let core = {
+	newGeneration : function() {
 
-function renderLiveCells() {
+		clearInterval(generation);
 
-	// clear the canvas 
-	ctx.fillStyle = 'white';
-	ctx.fillRect(0, 0, gridSett.d, gridSett.d);
+		nLiveCellsBefore = UI.grid.liveCells.length;
 
-	ctx.fillStyle = 'black';
+		for(let cell of UI.grid.liveCells.slice(0,nLiveCellsBefore))
+			for(let x = cell[0]-1; x <= cell[0]+1; x++)
+				for(let y = cell[1]-1; y <= cell[1]+1; y++)
+					if(!this.exists([x,y]) && this.shouldLive([x,y],false))
+						UI.grid.liveCells.push(new Array(x,y));
 
-	for(let cell of gridSett.liveCells)
-		ctx.fillRect(
-			cell[0]*(gridSett.size+gridSett.gap+gridSett.shift),
-			cell[1]*(gridSett.size+gridSett.gap+gridSett.shift),
-			gridSett.size, gridSett.size);
-}
+		// this might look confused to not use arrs nextLiveCells[] and nextDeadCells[].
+		// It was changed (at least temporary) because of memory.
 
-
-function resizeGrid() {
-	
-	gridSett.d = Math.min(window.innerHeight,window.innerWidth);
-
-	canvas.height = gridSett.d;
-	canvas.width  = gridSett.d;
-
-	calcForResize();
-	renderLiveCells();	
-}
-
-function calcForResize() {
-
-	gridSett.size = gridSett.r * gridSett.d/(gridSett.n*(gridSett.r+1));
-        gridSett.gap = gridSett.size/gridSett.r;
-
-	gridSett.shift =
-		(gridSett.gap + (gridSett.d/(gridSett.gap+gridSett.size))%1*(gridSett.gap+gridSett.size))/gridSett.n;
-
-	// the first (0) rect doesn't add the shift .. 0*( .. and therefore  
-	gridSett.shift += gridSett.shift/(gridSett.n-1);
-}
-
-function addSomeCells() {
-
-	//gridSett.liveCells.push(new Array(0,0));
-	//gridSett.liveCells.push(new Array(0,1));
-	//gridSett.liveCells.push(new Array(1,1));
+		// remove next dead cells
+		UI.grid.liveCells =
+			UI.grid.liveCells.slice(0,nLiveCellsBefore).filter(cell => this.shouldLive(cell,true))
+			.concat(UI.grid.liveCells.slice(nLiveCellsBefore,UI.grid.liveCells.length));
 
 
+		generation = setInterval(testGeneration, 1000);
+	},
+	exists : function(cell,nextLiveCells) {
+		for(let i of UI.grid.liveCells)
+			if(i[0]==cell[0] && i[1]==cell[1])
+				return true;
+		return false;
+	},
+	shouldLive : function(cell,isCellDefinitelyLive) {
 
-	gridSett.liveCells.push(new Array(20,20));
-	gridSett.liveCells.push(new Array(20,21));
-	gridSett.liveCells.push(new Array(19,20));
-	gridSett.liveCells.push(new Array(19,21));
+		let nLiveCellsAround = 0;
 
-	gridSett.liveCells.push(new Array(19,22));
+		for(let comparedCell of UI.grid.liveCells.slice(0,nLiveCellsBefore))
 
-	gridSett.liveCells.push(new Array(15,11));
-	gridSett.liveCells.push(new Array(15,12));
-
-	gridSett.liveCells.push(new Array(gridSett.n-1,gridSett.n-1));
-	gridSett.liveCells.push(new Array(gridSett.n-1,1));
-	
-	gridSett.liveCells.push(new Array(10,10));
-	gridSett.liveCells.push(new Array(10,11));
-	gridSett.liveCells.push(new Array(10,12));
-}
-
-function newGeneration() {
-
-	//core
-	
-	clearInterval(generation);
-
-	nLiveCellsBefore = gridSett.liveCells.length;
-
-
-	for(let cell of gridSett.liveCells.slice(0,nLiveCellsBefore)) 
-		for(let x = cell[0]-1; x <= cell[0]+1; x++)
-			for(let y = cell[1]-1; y <= cell[1]+1; y++)
-				if(!exists([x,y]) && shouldLive([x,y],false))
-					gridSett.liveCells.push(new Array(x,y));
-
-	// this might look confused to not use arrs nextLiveCells[] and nextDeadCells[].
-	// It was changed (at least temporary) because of memory.
-
-	// remove next dead cells
-	gridSett.liveCells = 
-		gridSett.liveCells.slice(0,nLiveCellsBefore).filter(cell => shouldLive(cell,true))
-		.concat(gridSett.liveCells.slice(nLiveCellsBefore,gridSett.liveCells.length));
-
-
-	generation = setInterval(testGeneration, 1000);
-}
-
-
-function exists(cell,nextLiveCells) {
-
-	for(let i of gridSett.liveCells)
-		if(i[0]==cell[0] && i[1]==cell[1])
-			return true;
-	return false;
-}
-
-function shouldLive(cell,isCellDefinitelyLive) {
-
-	let nLiveCellsAround = 0;
-
-	for(let comparedCell of gridSett.liveCells.slice(0,nLiveCellsBefore))
-
-		if
+			if
 		(
 			comparedCell[0] <= cell[0]+1 &&
 			comparedCell[0] >= cell[0]-1 &&
 			comparedCell[1] <= cell[1]+1 && 
 			comparedCell[1] >= cell[1]-1
 		)
-			nLiveCellsAround++;
+				nLiveCellsAround++;
 
-	return (isCellDefinitelyLive) ? !willDie(nLiveCellsAround-1) : comesToLive(nLiveCellsAround);
+		return (isCellDefinitelyLive) ? !this.willDie(nLiveCellsAround-1) : this.comesToLive(nLiveCellsAround);
+	},
+	comesToLive : function(nLiveCellsAround) {
+
+		switch(nLiveCellsAround) {
+			case 3:
+				return true;
+			default:
+				return false;
+		}
+	},
+	willDie : function(nLiveCellsAround) {
+
+		switch(nLiveCellsAround) {
+			case 2:
+				return false;
+			case 3:
+				return false;
+			default: // 0, 1, 4, 5, 6, 7, 8
+				return true;
+		}
+
+	}
+
+
+
 }
 
-function comesToLive(nLiveCellsAround) {
 
-        switch(nLiveCellsAround) {
-                case 3:
-                        return true;
-                default:
-                        return false;
-        }
+function addSomeCells() {
+
+	//UI.grid.liveCells.push(new Array(0,0));
+	//UI.grid.liveCells.push(new Array(0,1));
+	//UI.grid.liveCells.push(new Array(1,1));
+
+
+
+	UI.grid.liveCells.push(new Array(20,20));
+	UI.grid.liveCells.push(new Array(20,21));
+	UI.grid.liveCells.push(new Array(19,20));
+	UI.grid.liveCells.push(new Array(19,21));
+
+	UI.grid.liveCells.push(new Array(19,22));
+
+	UI.grid.liveCells.push(new Array(15,11));
+	UI.grid.liveCells.push(new Array(15,12));
+
+	UI.grid.liveCells.push(new Array(UI.grid.n-1,UI.grid.n-1));
+	UI.grid.liveCells.push(new Array(UI.grid.n-1,1));
+
+	UI.grid.liveCells.push(new Array(10,10));
+	UI.grid.liveCells.push(new Array(10,11));
+	UI.grid.liveCells.push(new Array(10,12));
 }
 
-function willDie(nLiveCellsAround) {
-
-        switch(nLiveCellsAround) {
-                case 2:
-                        return false;
-                case 3:
-                        return false;
-                default: // 0, 1, 4, 5, 6, 7, 8
-                        return true;
-        }
-}
 
 
 
@@ -176,11 +177,11 @@ function willDie(nLiveCellsAround) {
 //
 
 addSomeCells();
-resizeGrid();
+UI.resizeGrid();
 
 function testGeneration() {
-	newGeneration();
-	renderLiveCells();
+	core.newGeneration();
+	UI.renderLiveCells();
 }
 let nLiveCells = 0;
 
