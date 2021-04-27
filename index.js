@@ -7,8 +7,8 @@ let UI = {
 		this.ctx = this.canvas.getContext('2d');
 	},
 	grid : {
-		n: 30, // number of cells for each dimension
-		d: 0, // number of pxs for each dimension
+		n: 30, // number of cells per dimension
+		d: 0, // number of pxs per dimension (it has to be a square)
 		liveCells: [],
 		size: 0,
 		gap: 0,

@@ -3,7 +3,6 @@
 /* */
 canvas{
         border-right: solid 1px black;
-        border-bottom: solid 1px black;
 }   
 body {
         overflow: hidden;
@@ -15,10 +14,9 @@ body {
 #menu{
         display: flex;
         flex-direction: row;
-        align-items: center;
+        align-items: center;	 
         gap: 1rem;
         width: 100vw;
-        padding: 0.5rem;
         background: rgba(109, 134, 202, 0.03);
         position: absolute;
         top: 0;
@@ -27,7 +25,6 @@ body {
 #menu div{
         display: inline-flex;
         align-items: center;
-        
 }
 
 #menu button, input{
@@ -41,10 +38,22 @@ body {
 #menu button{
         padding: 0 2rem;
         font-weight: bolder;
+	flex-basis: 100%;
+	margin-left: 30%;
+	margin-right: 30%;
 }
 #menu button:hover {
         background-color: #fff;
 }
 #menu button:active {
         transform: scale(0.96);
+}
+span#ui {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-self: flex-start;
+	flex-wrap: wrap;
+	flex-grow: 1;
+	margin-top: 1%;
 }

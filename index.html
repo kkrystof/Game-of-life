@@ -9,13 +9,16 @@
 	</head>
 	<body>
 		<div id="menu">
-			<button id="startBtn">Start</button>
-			<div>
-				<input type="range" name="sizeRange" id="sizeRange">
-				<p>10</p>
-			</div>
+
+			<canvas id="gridGameOfLife"></canvas>
+			<span id="ui">
+				<button id="startBtn">Start</button> <!-- btn will change (from the user's perspective) itself after every click to start/stop -->
+				<div>
+					<input type="range" name="nRange" id="nRange"> <!-- UI.grid.n -->
+					<p>10</p>
+				</div>
+			</span>
 		</div>
-		<canvas id="gridGameOfLife"/>
 		<script src="index.js"/></script>
 	</body>
 </html>
