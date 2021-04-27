@@ -3,7 +3,7 @@ let UI = {
 		this.setupCanvas();
 	},
 	setupCanvas: function() {
-		UI.canvas = document.getElementById('gridGameOfLife');
+		this.canvas = document.getElementById('gridGameOfLife');
 		this.ctx = this.canvas.getContext('2d');
 	},
 	grid : {
