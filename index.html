@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable = no">
-		<link rel="stylesheet" href="style.css">
-		<title>Conway's Game of Life</title>
-	</head>
-	<body>
 
-		<div id="menu">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable = no">
+	<link rel="stylesheet" href="style.css">
+	<title>Conway's Game of Life</title>
+</head>
 
-			<canvas id="gridGameOfLife"></canvas>
-			<span id="ui">
-				<button id="startBtn">Start</button> <!-- btn will change (from the user's perspective) itself after every click to start/stop -->
-				<div>
-					<input type="range" name="nRange" id="nRange"> <!-- UI.grid.n -->
-					<p>10</p>
-				</div>
+<body>
+
+	<div id="menu">
+
+		<canvas id="gridGameOfLife"></canvas>
+		<span id="ui">
+			<button id="startBtn">Start</button>
+			<span class="full">
+				<!-- btn will change (from the user's perspective) itself after every click to start/stop -->
+				<input type="range" name="nRange" id="nRange"> <!-- UI.grid.n -->
+				<p>10</p>
 			</span>
-		</div>
-		<script src="index.js"/></script>
-	</body>
+			<button><a id="download">downloag config</a></button>
+			<span class="full">
+				<input type="file" id="load" name="loadConfig" accept="application/JSON">
+			</span>
+		</span>
+	</div>
+	<script src="index.js"></script>
+</body>
+
 </html>

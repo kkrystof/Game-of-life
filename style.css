@@ -18,45 +18,42 @@ body {
         flex-direction: row;
         align-items: center;	 
 	justify-content: center;
-        gap: 1rem;
         width: 100vw;
         background: rgba(109, 134, 202, 0.03);
 	flex-wrap: wrap;
 	min-height: 100vh;
 }
 
-#menu div{
-        display: inline-flex;
-        align-items: center;
-}
 
-#menu button, input{
+button{
         border: solid 3px black;
         font-size: 18px;
         background-color: transparent;
         border-radius: 12px;
         height: 40px;
-}
-
-#menu button{
         padding: 0 2rem;
         font-weight: bolder;
-	flex-basis: 100%;
-	margin-left: 30%;
-	margin-right: 30%;
 }
-#menu button:hover {
+
+button:hover {
         background-color: #fff;
 }
-#menu button:active {
+button:active {
         transform: scale(0.96);
 }
 span#ui {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	align-self: flex-start;
 	flex-wrap: wrap;
 	flex-grow: 1;
 	margin-top: 1%;
+}
+span.full {
+        flex-basis: 100%;
+        display: inline-flex;
+        align-items: center;	
+	justify-content: center;
+
+
 }
