@@ -130,38 +130,7 @@ let core = {
 		}
 
 	}
-
-
-
 }
-
-
-function addSomeCells() {
-
-	//UI.grid.liveCells.push(new Array(0,0));
-	//UI.grid.liveCells.push(new Array(0,1));
-	//UI.grid.liveCells.push(new Array(1,1));
-
-
-
-	UI.grid.liveCells.push(new Array(20, 20));
-	UI.grid.liveCells.push(new Array(20, 21));
-	UI.grid.liveCells.push(new Array(19, 20));
-	UI.grid.liveCells.push(new Array(19, 21));
-
-	UI.grid.liveCells.push(new Array(19, 22));
-
-	UI.grid.liveCells.push(new Array(15, 11));
-	UI.grid.liveCells.push(new Array(15, 12));
-
-	UI.grid.liveCells.push(new Array(UI.grid.n - 1, UI.grid.n - 1));
-	UI.grid.liveCells.push(new Array(UI.grid.n - 1, 1));
-
-	UI.grid.liveCells.push(new Array(10, 10));
-	UI.grid.liveCells.push(new Array(10, 11));
-	UI.grid.liveCells.push(new Array(10, 12));
-}
-
 
 
 
@@ -175,12 +144,33 @@ window.onload = function () {
 	UI.init();
 	UI.resizeGrid();
 
+	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => addCells(data));
+
+	var generation;
+	startInterval();
+
+
+	let upload = document.getElementById('load'),
+		reader = new FileReader();
+
+	function startInterval() {
+		generation = setInterval(nextGeneration, 500);
+	}
+
+	function addCells(cells) {
+
+		UI.grid.liveCells = [];
+		for (let cell of cells)
+			UI.grid.liveCells.push(cell);
+		setDownload();
+	}
+
 	function nextGeneration() {
 
 		clearInterval(generation);
 		UI.renderLiveCells();
 		core.newGeneration();
-		generation = setInterval(nextGeneration, 1000);
+		startInterval();
 	}
 
 	function setDownload() {
@@ -192,14 +182,6 @@ window.onload = function () {
 		download.setAttribute("download", "config.json");
 	}
 
-	addSomeCells();
-	setDownload();
-
-	var generation = setInterval(nextGeneration, 1000);
-
-	let upload = document.getElementById('load'),
-		reader = new FileReader();
-
 	upload.onchange = function () {
 
 		clearInterval(generation);
@@ -210,11 +192,7 @@ window.onload = function () {
 
 		// missing validation
 
-		UI.grid.liveCells = [];
-		for (let cell of JSON.parse(reader.result))
-			UI.grid.liveCells.push(cell);
-
-		setDownload();
-		generation = setInterval(nextGeneration, 1000);
+		addCells(JSON.parse(reader.result));
+		startInterval();
 	};
 };
