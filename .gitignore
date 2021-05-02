@@ -3,5 +3,4 @@
 !.js
 !.html
 !.css
-!.json
-!*/
+!samples/*.json
