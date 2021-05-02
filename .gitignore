@@ -1,6 +1,6 @@
-*
-!.gitignore
-!.js
-!.html
-!.css
-!samples/*.json
+#*
+#!samples/*.json
+#!.gitignore
+#!.js
+#!.html
+#!.css
