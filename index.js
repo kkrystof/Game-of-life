@@ -16,7 +16,6 @@ let UI = {
 		r: 15 // ratio = r*gap
 	},
 	renderLiveCells: function () {
-
 		// clear the canvas 
 		this.ctx.fillStyle = 'white';
 		this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
@@ -36,11 +35,11 @@ let UI = {
 		this.canvas.height = this.grid.d;
 		this.canvas.width = this.grid.d;
 
-		this.calcForResize();
+		this.recalc();
 		this.renderLiveCells();
 
 	},
-	calcForResize: function () {
+	recalc: function () {
 
 		this.grid.size = this.grid.r * this.grid.d / (this.grid.n * (this.grid.r + 1));
 		this.grid.gap = this.grid.size / this.grid.r;
@@ -129,6 +128,12 @@ let core = {
 				return true;
 		}
 
+	},
+	shift: function (shiftX, shiftY) { // should it be in core?
+		for (const cell of UI.grid.liveCells) {
+			cell[0] += shiftX;
+			cell[1] += shiftY;
+		}
 	}
 }
 
@@ -144,7 +149,7 @@ window.onload = function () {
 	UI.init();
 	UI.resizeGrid();
 
-	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => addCells(data));
+	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => addCells(data)).then(x => UI.renderLiveCells());
 
 	var generation;
 	startInterval();
@@ -154,27 +159,62 @@ window.onload = function () {
 		reader = new FileReader();
 
 	function startInterval() {
-		generation = setInterval(nextGeneration, 500);
+		generation = setInterval(nextGeneration, 100);
 	}
 
-	function addCells(cells) {
-
+	function addCells(cells) { // should be in core
 		UI.grid.liveCells = [];
 		for (let cell of cells)
 			UI.grid.liveCells.push(cell);
 		setDownload();
 	}
 
-	function nextGeneration() {
+	function checkInGrid() {
+		const minX = Math.min(...UI.grid.liveCells.map(x => x[0])),
+			maxX = Math.max(...UI.grid.liveCells.map(x => x[0]))+1,
+			minY = Math.min(...UI.grid.liveCells.map(x => x[1])),
+			maxY = Math.max(...UI.grid.liveCells.map(x => x[1]))+1;
 
+			if (minX < 0) {
+				core.shift(1, 0);
+				if (maxX > UI.grid.n) {
+					UI.grid.n += maxX + 1 - UI.grid.n;
+					UI.recalc();
+				}
+			} else if (maxX > UI.grid.n) {
+				if (minX - 1 >= 0)
+					core.shift(-1, 0);
+				else {
+					UI.grid.n++
+					UI.recalc();
+				}
+			}
+
+			if (minY < 0) {
+				core.shift(0, 1);
+				if (maxY > UI.grid.n) {
+					UI.grid.n += maxY + 1 - UI.grid.n;
+					UI.recalc();
+				}
+			} else if (maxY > UI.grid.n) {
+				if (minY - 1 >= 0)
+					core.shift(0, -1);
+				else {
+					UI.grid.n++
+					UI.recalc();
+				}
+			}
+	}
+
+	function nextGeneration() {
 		clearInterval(generation);
-		UI.renderLiveCells();
 		core.newGeneration();
+		checkInGrid(); // should be renamed
+		UI.renderLiveCells();
 		startInterval();
 	}
 
 	function setDownload() {
-
 		let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(UI.grid.liveCells)),
 			download = document.getElementById('download');
 
@@ -183,16 +223,17 @@ window.onload = function () {
 	}
 
 	upload.onchange = function () {
-
 		clearInterval(generation);
 		reader.readAsText(upload.files[0]);
-	};
+	}
 
 	reader.onload = function () {
-
 		// missing validation
 
 		addCells(JSON.parse(reader.result));
+		UI.renderLiveCells();
 		startInterval();
-	};
-};
+	}
+}
+
+// pridani
