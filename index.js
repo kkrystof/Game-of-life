@@ -24,8 +24,8 @@ let UI = {
 
 		for (let cell of this.grid.liveCells)
 			this.ctx.fillRect(
-				cell[0] * (this.grid.size + this.grid.gap + this.grid.shift),
-				cell[1] * (this.grid.size + this.grid.gap + this.grid.shift),
+				(cell[0] + this.shiftX) * (this.grid.size + this.grid.gap + this.grid.shift),
+				(cell[1] + this.shiftY) * (this.grid.size + this.grid.gap + this.grid.shift),
 				this.grid.size, this.grid.size);
 	},
 	resizeGrid: function () {
@@ -49,7 +49,9 @@ let UI = {
 
 		// the first (0) rect doesn't add the shift .. 0*( .. and therefore
 		this.grid.shift += this.grid.shift / (this.grid.n - 1);
-	}
+	},
+	shiftX: 0,
+	shiftY: 0
 }
 
 window.onresize = function () {
@@ -128,12 +130,6 @@ let core = {
 				return true;
 		}
 
-	},
-	shift: function (shiftX, shiftY) { // should it be in core?
-		for (const cell of UI.grid.liveCells) {
-			cell[0] += shiftX;
-			cell[1] += shiftY;
-		}
 	}
 }
 
@@ -169,48 +165,44 @@ window.onload = function () {
 		setDownload();
 	}
 
-	function checkInGrid() {
-		const minX = Math.min(...UI.grid.liveCells.map(x => x[0])),
-			maxX = Math.max(...UI.grid.liveCells.map(x => x[0]))+1,
-			minY = Math.min(...UI.grid.liveCells.map(x => x[1])),
-			maxY = Math.max(...UI.grid.liveCells.map(x => x[1]))+1;
+	function expandIfNeeded() {
+		const minX = Math.min(...UI.grid.liveCells.map(x => x[0])) + UI.shiftX,
+			maxX = Math.max(...UI.grid.liveCells.map(x => x[0])) + 1 + UI.shiftX,
+			minY = Math.min(...UI.grid.liveCells.map(x => x[1])) + UI.shiftY,
+			maxY = Math.max(...UI.grid.liveCells.map(x => x[1])) + 1 + UI.shiftY;
 
-			if (minX < 0) {
-				core.shift(1, 0);
-				if (maxX > UI.grid.n) {
-					UI.grid.n += maxX + 1 - UI.grid.n;
-					UI.recalc();
-				}
-			} else if (maxX > UI.grid.n) {
-				if (minX - 1 >= 0)
-					core.shift(-1, 0);
-				else {
-					UI.grid.n++
-					UI.recalc();
-				}
-			}
+		// keeping a ratio would be plus because of increasing UI.grid.n in both coordinates
 
-			if (minY < 0) {
-				core.shift(0, 1);
-				if (maxY > UI.grid.n) {
-					UI.grid.n += maxY + 1 - UI.grid.n;
-					UI.recalc();
-				}
-			} else if (maxY > UI.grid.n) {
-				if (minY - 1 >= 0)
-					core.shift(0, -1);
-				else {
-					UI.grid.n++
-					UI.recalc();
-				}
-			}
+		if (minX < 0) {
+			UI.grid.n++;
+			UI.shiftX++;
+		}
+		if (maxX > UI.grid.n)
+			UI.grid.n++;
+
+
+		if (minY < 0) {
+			UI.grid.n++;
+			UI.shiftY++;
+		}
+		if (maxY > UI.grid.n)
+			UI.grid.n++;
+
+
+		UI.recalc();
+
 	}
 
 	function nextGeneration() {
 		clearInterval(generation);
+		
+		// core
 		core.newGeneration();
-		checkInGrid(); // should be renamed
+
+		// UI
+		expandIfNeeded();
 		UI.renderLiveCells();
+
 		startInterval();
 	}
 
@@ -224,6 +216,7 @@ window.onload = function () {
 
 	upload.onchange = function () {
 		clearInterval(generation);
+		expandIfNeeded();
 		reader.readAsText(upload.files[0]);
 	}
 
