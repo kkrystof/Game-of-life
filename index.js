@@ -1,232 +1,217 @@
-let UI = {
-	init: function () {
-		this.setupCanvas();
-	},
-	setupCanvas: function () {
-		this.canvas = document.getElementById('gridGameOfLife');
-		this.ctx = this.canvas.getContext('2d');
-	},
-	grid: {
-		n: 30, // number of cells per dimension
-		d: 0, // number of pxs per dimension (it has to be a square)
-		liveCells: [],
-		size: 0,
-		gap: 0,
-		shift: 0,
-		r: 15 // ratio = r*gap
-	},
-	renderLiveCells: function () {
-		// clear the canvas 
-		this.ctx.fillStyle = 'white';
-		this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
+function GameOfLife() {
+	let UI = {
+		init: function () {
+			this.setupCanvas();
+		},
+		setupCanvas: function () {
+			this.canvas = document.getElementById('gridGameOfLife');
+			this.ctx = this.canvas.getContext('2d');
+		},
+		grid: {
+			n: 30, // number of cells per dimension
+			d: 0, // number of pxs per dimension (it has to be a square)
+			liveCells: [],
+			size: 0,
+			gap: 0,
+			shift: 0,
+			r: 15 // ratio = r*gap
+		},
+		renderLiveCells: function () {
+			// clear the canvas 
+			this.ctx.fillStyle = 'white';
+			this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
 
-		this.ctx.fillStyle = 'black';
+			this.ctx.fillStyle = 'black';
 
-		for (let cell of this.grid.liveCells)
-			this.ctx.fillRect(
-				(cell[0] + this.shiftX) * (this.grid.size + this.grid.gap + this.grid.shift),
-				(cell[1] + this.shiftY) * (this.grid.size + this.grid.gap + this.grid.shift),
-				this.grid.size, this.grid.size);
-	},
-	resizeGrid: function () {
+			for (let cell of this.grid.liveCells)
+				this.ctx.fillRect(
+					(cell[0] + this.shiftX) * (this.grid.size + this.grid.gap + this.grid.shift),
+					(cell[1] + this.shiftY) * (this.grid.size + this.grid.gap + this.grid.shift),
+					this.grid.size, this.grid.size);
+		},
+		resizeGrid: function () {
 
-		this.grid.d = Math.min(window.innerHeight, window.innerWidth);
+			this.grid.d = Math.min(window.innerHeight, window.innerWidth);
 
-		this.canvas.height = this.grid.d;
-		this.canvas.width = this.grid.d;
+			this.canvas.height = this.grid.d;
+			this.canvas.width = this.grid.d;
 
-		this.recalc();
-		this.renderLiveCells();
+			this.recalc();
+			this.renderLiveCells();
 
-	},
-	recalc: function () {
+		},
+		recalc: function () {
 
-		this.grid.size = this.grid.r * this.grid.d / (this.grid.n * (this.grid.r + 1));
-		this.grid.gap = this.grid.size / this.grid.r;
+			this.grid.size = this.grid.r * this.grid.d / (this.grid.n * (this.grid.r + 1));
+			this.grid.gap = this.grid.size / this.grid.r;
 
-		this.grid.shift =
-			(this.grid.gap + (this.grid.d / (this.grid.gap + this.grid.size)) % 1 * (this.grid.gap + this.grid.size)) / this.grid.n;
+			this.grid.shift =
+				(this.grid.gap + (this.grid.d / (this.grid.gap + this.grid.size)) % 1 * (this.grid.gap + this.grid.size)) / this.grid.n;
 
-		// the first (0) rect doesn't add the shift .. 0*( .. and therefore
-		this.grid.shift += this.grid.shift / (this.grid.n - 1);
-	},
-	shiftX: 0,
-	shiftY: 0
-}
+			// the first (0) rect doesn't add the shift .. 0*( .. and therefore
+			this.grid.shift += this.grid.shift / (this.grid.n - 1);
+		},
+		expandIfNeeded: function () {
+			const minX = Math.min(...this.grid.liveCells.map(x => x[0])) + this.shiftX,
+				maxX = Math.max(...this.grid.liveCells.map(x => x[0])) + 1 + this.shiftX,
+				minY = Math.min(...this.grid.liveCells.map(x => x[1])) + this.shiftY,
+				maxY = Math.max(...this.grid.liveCells.map(x => x[1])) + 1 + this.shiftY;
 
-window.onresize = function () {
+			// keeping a ratio would be plus because of increasing UI.grid.n in both coordinates
+			if (minX < 0) {
+				this.grid.n++;
+				this.shiftX++;
+			}
+			if (maxX > this.grid.n)
+				this.grid.n++;
 
-	// avoiding resizeGrid() if it's not necessary
+			if (minY < 0) {
+				this.grid.n++;
+				this.shiftY++;
+			}
+			if (maxY > this.grid.n)
+				this.grid.n++;
 
-	const windowW = window.innerWidth,
-		windowH = window.innerHeight;
+			this.recalc();
 
-	if (windowW < windowH && windowW == UI.canvas.width && windowH > UI.canvas.width
-		|| windowW > windowH && windowH == UI.canvas.height && windowW > UI.canvas.height)
-		return;
+		},
+		adjustToLiveCells: function() {
+		},
+		shiftX: 0,
+		shiftY: 0
+	};
 
-	UI.resizeGrid();
-};
+	window.onresize = function () {
+		// avoiding resizeGrid() if it's not necessary
 
-let core = {
-	newGeneration: function () {
+		const windowW = window.innerWidth,
+			windowH = window.innerHeight;
 
-		nLiveCellsBefore = UI.grid.liveCells.length;
+		if (windowW < windowH && windowW == UI.canvas.width && windowH > UI.canvas.width
+			|| windowW > windowH && windowH == UI.canvas.height && windowW > UI.canvas.height)
+			return;
 
-		for (let cell of UI.grid.liveCells.slice(0, nLiveCellsBefore))
-			for (let x = cell[0] - 1; x <= cell[0] + 1; x++)
-				for (let y = cell[1] - 1; y <= cell[1] + 1; y++)
-					if (!this.exists([x, y]) && this.shouldLive([x, y], false))
-						UI.grid.liveCells.push(new Array(x, y));
+		UI.resizeGrid();
+	};
 
-		// this might look confused to not use arrs nextLiveCells[] and nextDeadCells[].
-		// It was changed (at least temporary) because of memory.
+	let core = {
+		newGeneration: function () {
 
-		// remove next dead cells
-		UI.grid.liveCells =
-			UI.grid.liveCells.slice(0, nLiveCellsBefore).filter(cell => this.shouldLive(cell, true))
-				.concat(UI.grid.liveCells.slice(nLiveCellsBefore, UI.grid.liveCells.length));
-	},
-	exists: function (cell, nextLiveCells) {
-		for (let i of UI.grid.liveCells)
-			if (i[0] == cell[0] && i[1] == cell[1])
-				return true;
-		return false;
-	},
-	shouldLive: function (cell, isCellDefinitelyLive) {
+			nLiveCellsBefore = UI.grid.liveCells.length;
 
-		let nLiveCellsAround = 0;
+			for (const cell of UI.grid.liveCells.slice(0, nLiveCellsBefore))
+				for (let x = cell[0] - 1; x <= cell[0] + 1; x++)
+					for (let y = cell[1] - 1; y <= cell[1] + 1; y++)
+						if (!this.exists([x, y]) && this.shouldLive([x, y], false))
+							UI.grid.liveCells.push(new Array(x, y));
 
-		for (let comparedCell of UI.grid.liveCells.slice(0, nLiveCellsBefore))
+			// this might look confused to not use arrs nextLiveCells[] and nextDeadCells[].
+			// It was changed (at least temporary) because of memory.
+			// remove next dead cells
+			UI.grid.liveCells =
+				UI.grid.liveCells.slice(0, nLiveCellsBefore).filter(cell => this.shouldLive(cell, true))
+					.concat(UI.grid.liveCells.slice(nLiveCellsBefore, UI.grid.liveCells.length));
+		},
+		exists: function (searchedCell, nextLiveCells) {
+			for (const cell of UI.grid.liveCells)
+				if (cell[0] == searchedCell[0] && cell[1] == searchedCell[1])
+					return true;
+			return false;
+		},
+		shouldLive: function (cell, isCellDefinitelyLive) {
 
-			if
-				(
-				comparedCell[0] <= cell[0] + 1 &&
-				comparedCell[0] >= cell[0] - 1 &&
-				comparedCell[1] <= cell[1] + 1 &&
-				comparedCell[1] >= cell[1] - 1
-			)
-				nLiveCellsAround++;
+			let nLiveCellsAround = 0;
 
-		return (isCellDefinitelyLive) ? !this.willDie(nLiveCellsAround - 1) : this.comesToLive(nLiveCellsAround);
-	},
-	comesToLive: function (nLiveCellsAround) {
+			for (const comparedCell of UI.grid.liveCells.slice(0, nLiveCellsBefore))
+				if (comparedCell[0] <= cell[0] + 1 &&
+					comparedCell[0] >= cell[0] - 1 &&
+					comparedCell[1] <= cell[1] + 1 &&
+					comparedCell[1] >= cell[1] - 1)
+					nLiveCellsAround++;
 
-		switch (nLiveCellsAround) {
-			case 3:
-				return true;
-			default:
-				return false;
+			return (isCellDefinitelyLive) ? !this.willDie(nLiveCellsAround - 1) : this.comesToLive(nLiveCellsAround);
+		},
+		comesToLive: function (nLiveCellsAround) {
+
+			switch (nLiveCellsAround) {
+				case 3:
+					return true;
+				default:
+					return false;
+			}
+		},
+		willDie: function (nLiveCellsAround) {
+
+			switch (nLiveCellsAround) {
+				case 2:
+					return false;
+				case 3:
+					return false;
+				default: // 0, 1, 4, 5, 6, 7, 8
+					return true;
+			}
+
+		},
+		addCells: function (cells) {
+			UI.grid.liveCells = cells.map(x => x);
 		}
-	},
-	willDie: function (nLiveCellsAround) {
-
-		switch (nLiveCellsAround) {
-			case 2:
-				return false;
-			case 3:
-				return false;
-			default: // 0, 1, 4, 5, 6, 7, 8
-				return true;
-		}
-
-	}
-}
+	};
 
 
 
-//	executing something	
-//
-//
-//
+	//	controler
+	//
+	//
+	//
+	window.onload = function () {
 
-window.onload = function () {
+		let upload = document.getElementById('load'),
+			reader = new FileReader();
+		var generation;
 
-	UI.init();
-	UI.resizeGrid();
-
-	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => addCells(data)).then(x => UI.renderLiveCells());
-
-	var generation;
-	startInterval();
-
-
-	let upload = document.getElementById('load'),
-		reader = new FileReader();
-
-	function startInterval() {
-		generation = setInterval(nextGeneration, 100);
-	}
-
-	function addCells(cells) { // should be in core
-		UI.grid.liveCells = [];
-		for (let cell of cells)
-			UI.grid.liveCells.push(cell);
-		setDownload();
-	}
-
-	function expandIfNeeded() {
-		const minX = Math.min(...UI.grid.liveCells.map(x => x[0])) + UI.shiftX,
-			maxX = Math.max(...UI.grid.liveCells.map(x => x[0])) + 1 + UI.shiftX,
-			minY = Math.min(...UI.grid.liveCells.map(x => x[1])) + UI.shiftY,
-			maxY = Math.max(...UI.grid.liveCells.map(x => x[1])) + 1 + UI.shiftY;
-
-		// keeping a ratio would be plus because of increasing UI.grid.n in both coordinates
-
-		if (minX < 0) {
-			UI.grid.n++;
-			UI.shiftX++;
-		}
-		if (maxX > UI.grid.n)
-			UI.grid.n++;
-
-
-		if (minY < 0) {
-			UI.grid.n++;
-			UI.shiftY++;
-		}
-		if (maxY > UI.grid.n)
-			UI.grid.n++;
-
-
-		UI.recalc();
-
-	}
-
-	function nextGeneration() {
-		clearInterval(generation);
-		
-		// core
-		core.newGeneration();
-
-		// UI
-		expandIfNeeded();
-		UI.renderLiveCells();
-
+		UI.init();
+		UI.resizeGrid();
+		fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => setDownload()).then(x => UI.renderLiveCells());
 		startInterval();
-	}
 
-	function setDownload() {
-		let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(UI.grid.liveCells)),
-			download = document.getElementById('download');
 
-		download.setAttribute("href", dataStr);
-		download.setAttribute("download", "config.json");
-	}
+		function startInterval() {
+			generation = setInterval(nextGeneration, 100);
+		}
 
-	upload.onchange = function () {
-		clearInterval(generation);
-		expandIfNeeded();
-		reader.readAsText(upload.files[0]);
-	}
+		function nextGeneration() {
+			clearInterval(generation);
 
-	reader.onload = function () {
-		// missing validation
+			core.newGeneration();
+			UI.expandIfNeeded();
+			UI.renderLiveCells();
 
-		addCells(JSON.parse(reader.result));
-		UI.renderLiveCells();
-		startInterval();
-	}
+			startInterval();
+		}
+
+		function setDownload() {
+			let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(UI.grid.liveCells)),
+				download = document.getElementById('download');
+
+			download.setAttribute("href", dataStr);
+			download.setAttribute("download", "config.json");
+		}
+
+		upload.onchange = function () {
+			clearInterval(generation);
+			UI.expandIfNeeded(); // rather to compute last shiftX & shiftY for last core.newGeneration()
+			reader.readAsText(upload.files[0]);
+		};
+
+		reader.onload = function () {
+			// missing validation
+			core.addCells(JSON.parse(reader.result));
+			setDownload();
+			UI.renderLiveCells();
+			startInterval();
+		};
+	};
 }
 
-// pridani
+
+GameOfLife();
