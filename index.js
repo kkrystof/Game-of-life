@@ -75,23 +75,10 @@ function GameOfLife() {
 			this.recalc();
 
 		},
-		adjustToLiveCells: function() {
+		adjustToLiveCells: function () {
 		},
 		shiftX: 0,
 		shiftY: 0
-	};
-
-	window.onresize = function () {
-		// avoiding resizeGrid() if it's not necessary
-
-		const windowW = window.innerWidth,
-			windowH = window.innerHeight;
-
-		if (windowW < windowH && windowW == UI.canvas.width && windowH > UI.canvas.width
-			|| windowW > windowH && windowH == UI.canvas.height && windowW > UI.canvas.height)
-			return;
-
-		UI.resizeGrid();
 	};
 
 	let core = {
@@ -158,60 +145,73 @@ function GameOfLife() {
 	};
 
 
-
-	//	controler
 	//
 	//
 	//
-	window.onload = function () {
+	//
+	let controler = {
 
-		let upload = document.getElementById('load'),
-			reader = new FileReader();
-		var generation;
+		upload : document.getElementById('load'),
+		reader : new FileReader(),
+		generation : 0, // interval
 
-		UI.init();
-		UI.resizeGrid();
-		fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => setDownload()).then(x => UI.renderLiveCells());
-		startInterval();
+		init: function () {
+			UI.init();
+			UI.resizeGrid();
 
+			window.onresize = function () {
+				// avoiding resizeGrid() if it's not necessary
 
-		function startInterval() {
-			generation = setInterval(nextGeneration, 100);
-		}
+				const windowW = window.innerWidth,
+					windowH = window.innerHeight;
 
-		function nextGeneration() {
-			clearInterval(generation);
+				if (windowW < windowH && windowW == UI.canvas.width && windowH > UI.canvas.width
+					|| windowW > windowH && windowH == UI.canvas.height && windowW > UI.canvas.height)
+					return;
+
+				UI.resizeGrid();
+			};
+
+			this.upload.onchange = function () {
+				clearInterval(controler.generation);
+				UI.expandIfNeeded(); // rather to compute last shiftX & shiftY for last core.newGeneration()
+				controler.reader.readAsText(controler.upload.files[0]);
+			};
+
+			this.reader.onload = function () {
+				// missing validation
+				core.addCells(JSON.parse(controler.reader.result));
+				controler.setDownload();
+				UI.renderLiveCells();
+				controler.startInterval();
+			};
+		},
+		nextGeneration: function () {
+			clearInterval(this.generation);
 
 			core.newGeneration();
 			UI.expandIfNeeded();
 			UI.renderLiveCells();
 
-			startInterval();
-		}
-
-		function setDownload() {
-			let dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(UI.grid.liveCells)),
+			this.startInterval;
+		},
+		startInterval: function () {
+			this.generation = setInterval(this.nextGeneration, 100);
+		},
+		setDownload: function () {
+			const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(UI.grid.liveCells)),
 				download = document.getElementById('download');
 
 			download.setAttribute("href", dataStr);
 			download.setAttribute("download", "config.json");
 		}
-
-		upload.onchange = function () {
-			clearInterval(generation);
-			UI.expandIfNeeded(); // rather to compute last shiftX & shiftY for last core.newGeneration()
-			reader.readAsText(upload.files[0]);
-		};
-
-		reader.onload = function () {
-			// missing validation
-			core.addCells(JSON.parse(reader.result));
-			setDownload();
-			UI.renderLiveCells();
-			startInterval();
-		};
 	};
+
+
+	controler.init();
+	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => controler.setDownload()).then(x => UI.renderLiveCells());
+	controler.startInterval();
+
 }
 
-
-GameOfLife();
+window.onload = function () { GameOfLife(); };
