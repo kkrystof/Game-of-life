@@ -16,6 +16,8 @@ function GameOfLife() {
 			shift: 0,
 			r: 15 // ratio = r*gap
 		},
+		shiftX: 0,
+		shiftY: 0,
 		renderLiveCells: function () {
 			// clear the canvas 
 			this.ctx.fillStyle = 'white';
@@ -51,34 +53,51 @@ function GameOfLife() {
 			// the first (0) rect doesn't add the shift .. 0*( .. and therefore
 			this.grid.shift += this.grid.shift / (this.grid.n - 1);
 		},
+		refresh: function() {
+			    this.minX = Math.min(...this.grid.liveCells.map(x => x[0])),
+				this.maxX = Math.max(...this.grid.liveCells.map(x => x[0])),
+				this.minY = Math.min(...this.grid.liveCells.map(x => x[1])),
+				this.maxY = Math.max(...this.grid.liveCells.map(x => x[1]));
+		},
 		expandIfNeeded: function () {
-			const minX = Math.min(...this.grid.liveCells.map(x => x[0])) + this.shiftX,
-				maxX = Math.max(...this.grid.liveCells.map(x => x[0])) + 1 + this.shiftX,
-				minY = Math.min(...this.grid.liveCells.map(x => x[1])) + this.shiftY,
-				maxY = Math.max(...this.grid.liveCells.map(x => x[1])) + 1 + this.shiftY;
-
 			// keeping a ratio would be plus because of increasing UI.grid.n in both coordinates
+			this.refresh();
+			minX = this.minX + this.shiftX;
+			maxX = this.maxX + this.shiftX;
+			minY = this.minY + this.shiftY;
+			maxY = this.maxY + this.shiftY;
+
 			if (minX < 0) {
 				this.grid.n++;
 				this.shiftX++;
 			}
-			if (maxX > this.grid.n)
+			if (maxX > this.grid.n - 1)
 				this.grid.n++;
 
 			if (minY < 0) {
 				this.grid.n++;
 				this.shiftY++;
 			}
-			if (maxY > this.grid.n)
+			if (maxY > this.grid.n - 1)
 				this.grid.n++;
 
 			this.recalc();
 
 		},
 		adjustToLiveCells: function () {
+			this.refresh();
+
+			this.shiftX = -this.minX;
+			this.shiftY = -this.minY;
+
+			this.grid.n = Math.max(
+				Math.abs(this.maxX) - Math.abs(this.minX), Math.abs(this.maxY) - Math.abs(this.minY)
+			) + 1;
+
+			this.recalc();
 		},
-		shiftX: 0,
-		shiftY: 0
+		centerLiveCells: function () {
+		}
 	};
 
 	let core = {
@@ -144,11 +163,6 @@ function GameOfLife() {
 		}
 	};
 
-
-	//
-	//
-	//
-	//
 	let controler = {
 
 		upload : document.getElementById('load'),
@@ -191,6 +205,7 @@ function GameOfLife() {
 
 			core.newGeneration();
 			UI.expandIfNeeded();
+			//UI.adjustToLiveCells();
 			UI.renderLiveCells();
 
 			this.startInterval;
@@ -208,6 +223,10 @@ function GameOfLife() {
 	};
 
 
+	//
+	//
+	//
+	//
 	controler.init();
 	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => controler.setDownload()).then(x => UI.renderLiveCells());
 	controler.startInterval();
