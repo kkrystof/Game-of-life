@@ -8,13 +8,13 @@ function GameOfLife() {
 			this.ctx = this.canvas.getContext('2d');
 		},
 		grid: {
-			n: 30, // number of cells per dimension
-			d: 0, // number of pxs per dimension (it has to be a square)
+			n: 30,
+			d: 0,
 			liveCells: [],
 			size: 0,
 			gap: 0,
 			shift: 0,
-			r: 15 // ratio = r*gap
+			r: 15
 		},
 		shiftX: 0,
 		shiftY: 0,
@@ -24,12 +24,14 @@ function GameOfLife() {
 			this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
 
 			this.ctx.fillStyle = 'black';
-
+			const k = this.grid.size + this.grid.gap + this.grid.shift;
+					
 			for (let cell of this.grid.liveCells)
 				this.ctx.fillRect(
-					(cell[0] + this.shiftX) * (this.grid.size + this.grid.gap + this.grid.shift),
-					(cell[1] + this.shiftY) * (this.grid.size + this.grid.gap + this.grid.shift),
-					this.grid.size, this.grid.size);
+					(cell[0] + this.shiftX) * k,
+					(this.grid.d - this.grid.size) - (cell[1] + this.shiftY) * k,
+					this.grid.size, 
+					this.grid.size);
 		},
 		resizeGrid: function () {
 
