@@ -18,34 +18,52 @@ function GameOfLife() {
 		},
 		shiftX: 0,
 		shiftY: 0,
-		renderLiveCells: function () {
-			// clear the canvas 
-			this.ctx.fillStyle = 'white';
-			this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
+		render: function () {
 
+			// firstly, clear the canvas
+			this.ctx.fillStyle = 'white';
+			this.ctx.clearRect(0, 0, this.grid.d, this.grid.d);
+			
+			// render live cells
 			this.ctx.fillStyle = 'black';
 			const k = this.grid.size + this.grid.gap + this.grid.shift;
-					
+
 			for (let cell of this.grid.liveCells)
 				this.ctx.fillRect(
 					(cell[0] + this.shiftX) * k,
 					(this.grid.d - this.grid.size) - (cell[1] + this.shiftY) * k,
-					this.grid.size, 
+					this.grid.size,
 					this.grid.size);
+
+
+			// render x,y strokes
+			this.ctx.strokeStyle = "#ff3c00";
+			this.ctx.lineWidth = k;
+
+			this.ctx.beginPath();
+			//y
+			this.ctx.moveTo(this.shiftX * k, 0);
+			this.ctx.lineTo(this.shiftX * k, this.grid.n * k);
+			this.ctx.stroke();
+
+			this.ctx.beginPath();
+
+			//x
+			this.ctx.moveTo(0, this.shiftY * k);
+			this.ctx.lineTo(this.grid.n * k, this.shiftY * k);
+			this.ctx.stroke();
 		},
 		resizeGrid: function () {
-
 			this.grid.d = Math.min(window.innerHeight, window.innerWidth);
 
 			this.canvas.height = this.grid.d;
 			this.canvas.width = this.grid.d;
 
 			this.recalc();
-			this.renderLiveCells();
+			this.render();
 
 		},
 		recalc: function () {
-
 			this.grid.size = this.grid.r * this.grid.d / (this.grid.n * (this.grid.r + 1));
 			this.grid.gap = this.grid.size / this.grid.r;
 
@@ -55,19 +73,26 @@ function GameOfLife() {
 			// the first (0) rect doesn't add the shift .. 0*( .. and therefore
 			this.grid.shift += this.grid.shift / (this.grid.n - 1);
 		},
-		refresh: function() {
-			    this.minX = Math.min(...this.grid.liveCells.map(x => x[0])),
-				this.maxX = Math.max(...this.grid.liveCells.map(x => x[0])),
-				this.minY = Math.min(...this.grid.liveCells.map(x => x[1])),
-				this.maxY = Math.max(...this.grid.liveCells.map(x => x[1]));
+		refresh: function () {
+			this.minX = Math.min(...this.grid.liveCells.map(x => x[0])),
+				this.maxX = 
+					Math.max(...this.grid.liveCells.map(x => x[0])),
+				this.minY = 
+					Math.min(...this.grid.liveCells.map(x => x[1])),
+				this.maxY = 
+					Math.max(...this.grid.liveCells.map(x => x[1]));
 		},
 		expandIfNeeded: function () {
 			// keeping a ratio would be plus because of increasing UI.grid.n in both coordinates
 			this.refresh();
-			minX = this.minX + this.shiftX;
-			maxX = this.maxX + this.shiftX;
-			minY = this.minY + this.shiftY;
-			maxY = this.maxY + this.shiftY;
+			minX = 
+				this.minX + this.shiftX;
+			maxX = 
+				this.maxX + this.shiftX;
+			minY = 
+				this.minY + this.shiftY;
+			maxY = 
+				this.maxY + this.shiftY;
 
 			if (minX < 0) {
 				this.grid.n++;
@@ -80,7 +105,7 @@ function GameOfLife() {
 				this.grid.n++;
 				this.shiftY++;
 			}
-			if (maxY > this.grid.n - 1)
+			if (maxY > this.grid.n -1)
 				this.grid.n++;
 
 			this.recalc();
@@ -167,9 +192,9 @@ function GameOfLife() {
 
 	let controler = {
 
-		upload : document.getElementById('load'),
-		reader : new FileReader(),
-		generation : 0, // interval
+		upload: document.getElementById('load'),
+		reader: new FileReader(),
+		generation: 0, // interval
 
 		init: function () {
 			UI.init();
@@ -198,7 +223,7 @@ function GameOfLife() {
 				// missing validation
 				core.addCells(JSON.parse(controler.reader.result));
 				controler.setDownload();
-				UI.renderLiveCells();
+				UI.render();
 				controler.startInterval();
 			};
 		},
@@ -208,7 +233,7 @@ function GameOfLife() {
 			core.newGeneration();
 			UI.expandIfNeeded();
 			//UI.adjustToLiveCells();
-			UI.renderLiveCells();
+			UI.render();
 
 			this.startInterval;
 		},
@@ -230,7 +255,7 @@ function GameOfLife() {
 	//
 	//
 	controler.init();
-	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => controler.setDownload()).then(x => UI.renderLiveCells());
+	fetch("samples/spaceship.json").then(response => { return response.json(); }).then(data => core.addCells(data)).then(x => controler.setDownload()).then(x => UI.render());
 	controler.startInterval();
 
 }
