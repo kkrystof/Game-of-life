@@ -1,7 +1,7 @@
 function GameOfLife() {
 	let UI = {
 		grid: {
-			n: 30,
+			n: 10,
 			d: 0,
 			liveCells: [],
 			size: 0,
@@ -20,37 +20,33 @@ function GameOfLife() {
 			this.ctx = this.canvas.getContext('2d');
 		},
 		render: function () {
-
-			// firstly, clear the canvas
-			this.ctx.clearRect(0, 0, this.grid.d, this.grid.d);
-			
-			// render live cells
-			this.ctx.fillStyle = 'black';
 			const k = this.grid.size + this.grid.gap + this.grid.shift;
 
+			// fill spaces by some color
+			this.ctx.fillStyle = 'grey';
+			this.ctx.fillRect(0, 0, this.grid.d, this.grid.d);
+			
+			// fill all cells
+			this.ctx.fillStyle = 'white';
+			for(let x = 0; x < this.grid.n; x++) {
+				for(let y = 0; y < this.grid.n; y++) {
+					this.ctx.fillRect(
+						x * k,
+						y * k,
+						this.grid.size,
+						this.grid.size
+					);
+				}
+			}
+
+			// highlight live cells
+			this.ctx.fillStyle = 'black';
 			for (let cell of this.grid.liveCells)
 				this.ctx.fillRect(
 					(cell[0] + this.shiftX) * k,
 					(this.grid.d - this.grid.size) - (cell[1] + this.shiftY) * k,
 					this.grid.size,
 					this.grid.size);
-
-
-			// render x and y axes
-			this.ctx.strokeStyle = "#ff3c00";
-			this.ctx.lineWidth = k - this.grid.size; // lineWidth = realspace between cells
-
-			//y
-			this.ctx.beginPath();
-			this.ctx.moveTo(this.shiftX * k, 0);
-			this.ctx.lineTo(this.shiftX * k, this.grid.n * k);
-			this.ctx.stroke();
-
-			//x
-			this.ctx.beginPath();
-			this.ctx.moveTo(0, (this.grid.n - this.shiftY) * k);
-			this.ctx.lineTo(this.grid.n * k, (this.grid.n - this.shiftY) * k);
-			this.ctx.stroke();
 		},
 		resizeGrid: function () {
 			this.grid.d = Math.min(window.innerHeight, window.innerWidth);
