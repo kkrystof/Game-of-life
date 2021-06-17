@@ -49,8 +49,8 @@ function GameOfLife() {
 			this.ctx.beginPath();
 
 			//x
-			this.ctx.moveTo(0, this.shiftY * k);
-			this.ctx.lineTo(this.grid.n * k, this.shiftY * k);
+			this.ctx.moveTo(0, (this.grid.n - this.shiftY) * k);
+			this.ctx.lineTo(this.grid.n * k, (this.grid.n - this.shiftY) * k);
 			this.ctx.stroke();
 		},
 		resizeGrid: function () {
