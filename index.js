@@ -1,12 +1,5 @@
 function GameOfLife() {
 	let UI = {
-		init: function () {
-			this.setupCanvas();
-		},
-		setupCanvas: function () {
-			this.canvas = document.getElementById('gridGameOfLife');
-			this.ctx = this.canvas.getContext('2d');
-		},
 		grid: {
 			n: 30,
 			d: 0,
@@ -18,10 +11,17 @@ function GameOfLife() {
 		},
 		shiftX: 0,
 		shiftY: 0,
+
+		init: function () {
+			this.setupCanvas();
+		},
+		setupCanvas: function () {
+			this.canvas = document.getElementById('gridGameOfLife');
+			this.ctx = this.canvas.getContext('2d');
+		},
 		render: function () {
 
 			// firstly, clear the canvas
-			this.ctx.fillStyle = 'white';
 			this.ctx.clearRect(0, 0, this.grid.d, this.grid.d);
 			
 			// render live cells
@@ -36,19 +36,18 @@ function GameOfLife() {
 					this.grid.size);
 
 
-			// render x,y strokes
+			// render x and y axes
 			this.ctx.strokeStyle = "#ff3c00";
-			this.ctx.lineWidth = k;
+			this.ctx.lineWidth = k - this.grid.size; // lineWidth = realspace between cells
 
-			this.ctx.beginPath();
 			//y
+			this.ctx.beginPath();
 			this.ctx.moveTo(this.shiftX * k, 0);
 			this.ctx.lineTo(this.shiftX * k, this.grid.n * k);
 			this.ctx.stroke();
 
-			this.ctx.beginPath();
-
 			//x
+			this.ctx.beginPath();
 			this.ctx.moveTo(0, (this.grid.n - this.shiftY) * k);
 			this.ctx.lineTo(this.grid.n * k, (this.grid.n - this.shiftY) * k);
 			this.ctx.stroke();
@@ -61,7 +60,6 @@ function GameOfLife() {
 
 			this.recalc();
 			this.render();
-
 		},
 		recalc: function () {
 			this.grid.size = this.grid.r * this.grid.d / (this.grid.n * (this.grid.r + 1));
