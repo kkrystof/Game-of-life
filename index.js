@@ -1,7 +1,7 @@
 function GameOfLife() {
 	let UI = {
 		grid: {
-			n: 10,
+			n: 6,
 			d: 0,
 			liveCells: [],
 			size: 0,
@@ -88,22 +88,17 @@ function GameOfLife() {
 			maxY = 
 				this.maxY + this.shiftY;
 
-			if (minX < 0) {
-				this.grid.n++;
-				this.shiftX++;
-			}
-			if (maxX > this.grid.n - 1)
-				this.grid.n++;
+				this.grid.n += Math.max(0,-minX);
+				this.shiftX += Math.max(0,-minX);
 
-			if (minY < 0) {
-				this.grid.n++;
-				this.shiftY++;
-			}
-			if (maxY > this.grid.n -1)
-				this.grid.n++;
+				this.grid.n += Math.max(0,maxX - this.grid.n + 1);
+
+				this.grid.n += Math.max(0,-minY);
+				this.shiftY += Math.max(0,-minY);
+
+				this.grid.n += Math.max(0,maxY - this.grid.n + 1);
 
 			this.recalc();
-
 		},
 		adjustToLiveCells: function () {
 			this.refresh();
@@ -217,6 +212,7 @@ function GameOfLife() {
 				// missing validation
 				core.addCells(JSON.parse(controler.reader.result));
 				controler.setDownload();
+				UI.expandIfNeeded();
 				UI.render();
 				controler.startInterval();
 			};
