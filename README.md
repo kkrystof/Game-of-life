@@ -1,7 +1,7 @@
 # Conway's Game of Life
 
 ### Our game itself hasn't been implemented somehow quicker way.
-### The current algorithm goes through every live cell and declares the state of cells around for every next generation.
+### The current algorithm goes through every live cell and declares the state of each cell around for every next generation.
 ## Why we use canvas?
 ### There is also the grid. Ohh..yeah, but it has these problems:
 - You have to create a new element per cell (at least per live-cell as black div or something..)
